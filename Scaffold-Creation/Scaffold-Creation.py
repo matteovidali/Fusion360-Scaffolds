@@ -24,7 +24,6 @@ def create_pipe(rootComp, sketch_lines, id, od):
         work_plane = planes.add(planeInput)
 
         # create circular profile and offset
-        
         sketch = sketches.add(work_plane)
         sketchCircles = sketch.sketchCurves.sketchCircles
         centerPoint = adsk.core.Point3D.create(0, 0, 0)
@@ -32,15 +31,13 @@ def create_pipe(rootComp, sketch_lines, id, od):
         sketchCircles.addByCenterRadius(centerPoint, od)
 
         # Get extrude features
-        
-
         prof = sketch.profiles.item(1)
         line_len = adsk.core.ValueInput.createByReal(sketch_lines.item(i).length+(2*od))
         extrudeInput = extrudes.createInput(prof, adsk.fusion.FeatureOperations.NewBodyFeatureOperation)
         extrudeInput.setSymmetricExtent(line_len, True)
         extrude0 = extrudes.add(extrudeInput)
         body = extrude0.bodies.item(0)
-        body.name = "symmetric"
+        body.name = "pipe_body"
 
 
 
@@ -53,9 +50,16 @@ def run(context):
         rootComp = design.rootComponent
         planes = rootComp.constructionPlanes
         extrudes = rootComp.features.extrudeFeatures
-        # Currently just using the base component first sketch
-        # to test
-        lines = get_sketch_lines(rootComp.sketches[0])
+        # Lets get a selected sketch
+        MySketch = ui.selectEntity("Select A sketch", "Sketches")
+        
+        if not MySketch.isValid:
+            ui.messageBox("Sketch is Invalid")
+            raise ValueError('Sketch does not have any iterable curves / No lines detected')
+        MySketch = MySketch.entity
+            
+        
+        lines = get_sketch_lines(MySketch)
         
         create_pipe(rootComp, lines, .05, .15)
         
