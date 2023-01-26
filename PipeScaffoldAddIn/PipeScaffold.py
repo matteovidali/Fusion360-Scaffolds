@@ -287,11 +287,40 @@ class ScaffoldEditCommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
 
     def notify(self, args):
         try:
-            pass
+            ShowMessage("In ScaffoldEditCommandCreatedHandler")
+            return
+            eventArgs = adsk.core.CommandCreatedEventArgs.cast(args)
+            cmd = eventArgs.command
+            inputs = cmd.commandInputs
+
+            global _custFeatureBeingEdited
+            _custFeatureBeingEdit = _ui.activeSelections.item(0).entity
+
+            # GET VALUES FROM FEATURE
+            # PARAMS
+
+            # add the inputs to command dialog
+            des: adsk.fusion.design = _app.activeProduct
+            #inputs.addValueInput('diameter', 'Diameter', des.unitsManager.defaultLengthUnits, adsk.core.ValueInput.createByString(diamParam.expression))
+            #inputs.addValueInput('height', 'Height', des.unitsManager.defaultLengthUnits, adsk.core.ValueInput.createByString(heightParam.expression))
+
+            onExecutePreview = EditExecutePreviewHandler()
+            cmd.executePreview.add(onExecutePreview)
+            _handlers.append(onExecutePreview)
         except:
             _ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
 
 
+class EditExecutePreviewHandler(adsk.core.CommandEventHandler):
+    def __init__(self):
+        super().__init__()
+    def notify(self, args)
+        try:
+            pass
+        except:
+            _ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
+
+            
 def ShowMessage(message: str):
     textPalette: adsk.core.TextCommandPalette = _ui.palettes.itemById('TextCommands')
     if textPalette:
